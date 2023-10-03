@@ -53,3 +53,7 @@ export function GuestRoutes({
   }
   return <>{children}</>;
 }
+
+export function RedirectToDashboardHome() {
+  return <Navigate to="/dashboard/home" />;
+}

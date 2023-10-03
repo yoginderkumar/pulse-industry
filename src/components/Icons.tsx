@@ -79,10 +79,42 @@ export function OfficeIcon(props: IconProps) {
   );
 }
 
-export function ShopIcon(props: IconProps) {
+export function StoreIcon(props: IconProps) {
   return (
     <Icon {...props} fill="currentColor" viewBox="0 -960 960 960">
       <path d="M160-720v-80h640v80H160Zm0 560v-240h-40v-80l40-200h640l40 200v80h-40v240h-80v-240H560v240H160Zm80-80h240v-160H240v160Zm-38-240h556-556Zm0 0h556l-24-120H226l-24 120Z" />
+    </Icon>
+  );
+}
+
+export function AddStoreIcon(props: IconProps) {
+  return (
+    <Icon {...props} fill="currentColor" viewBox="0 -960 960 960">
+      <path d="M720-40v-120H600v-80h120v-120h80v120h120v80H800v120h-80ZM80-160v-240H40v-80l40-200h600l40 200v80h-40v120h-80v-120H440v240H80Zm80-80h200v-160H160v160Zm-38-240h516-516ZM80-720v-80h600v80H80Zm42 240h516l-24-120H146l-24 120Z" />
+    </Icon>
+  );
+}
+
+export function LocationIcon(props: IconProps) {
+  return (
+    <Icon {...props} fill="currentColor" viewBox="0 -960 960 960">
+      <path d="M440-42v-80q-125-14-214.5-103.5T122-440H42v-80h80q14-125 103.5-214.5T440-838v-80h80v80q125 14 214.5 103.5T838-520h80v80h-80q-14 125-103.5 214.5T520-122v80h-80Zm40-158q116 0 198-82t82-198q0-116-82-198t-198-82q-116 0-198 82t-82 198q0 116 82 198t198 82Zm0-120q-66 0-113-47t-47-113q0-66 47-113t113-47q66 0 113 47t47 113q0 66-47 113t-113 47Zm0-80q33 0 56.5-23.5T560-480q0-33-23.5-56.5T480-560q-33 0-56.5 23.5T400-480q0 33 23.5 56.5T480-400Zm0-80Z" />
+    </Icon>
+  );
+}
+
+export function PlusIcon(props: IconProps) {
+  return (
+    <Icon {...props} fill="currentColor" viewBox="0 -960 960 960">
+      <path d="M440-440H200v-80h240v-240h80v240h240v80H520v240h-80v-240Z" />
+    </Icon>
+  );
+}
+
+export function LocationOnIcon(props: IconProps) {
+  return (
+    <Icon {...props} fill="currentColor" viewBox="0 -960 960 960">
+      <path d="M480-480q33 0 56.5-23.5T560-560q0-33-23.5-56.5T480-640q-33 0-56.5 23.5T400-560q0 33 23.5 56.5T480-480Zm0 294q122-112 181-203.5T720-552q0-109-69.5-178.5T480-800q-101 0-170.5 69.5T240-552q0 71 59 162.5T480-186Zm0 106Q319-217 239.5-334.5T160-552q0-150 96.5-239T480-880q127 0 223.5 89T800-552q0 100-79.5 217.5T480-80Zm0-480Z" />
     </Icon>
   );
 }

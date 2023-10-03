@@ -11,9 +11,15 @@ import {
 import { getFirestore } from "firebase/firestore";
 import { getAuth } from "firebase/auth";
 import DashboardPage, { DashboardLayout } from "./pages/Dashboard";
-import { GuestRoutes, ProtectedRoutes } from "./redirects";
+import {
+  GuestRoutes,
+  ProtectedRoutes,
+  RedirectToDashboardHome,
+} from "./redirects";
 import ProfilePage from "./pages/ProfilePage";
 import { Inline, SpinnerIcon } from "./components";
+import AddNewStorePage from "./pages/AddNewStore";
+import StorePage from "./pages/Store";
 
 function App() {
   const firebaseApp = useFirebaseApp();
@@ -53,11 +59,22 @@ function App() {
         </ProtectedRoutes>
       ),
       children: [
-        { path: "", element: <DashboardPage /> },
+        { path: "", element: <RedirectToDashboardHome /> },
+        { path: "Home", element: <DashboardPage /> },
         {
           path: "profile",
           element: <ProfilePage />,
         },
+        {
+          path: "stores",
+          children: [
+            {
+              path: ":storeId",
+              element: <StorePage />,
+            },
+          ],
+        },
+        { path: "add-new-store", element: <AddNewStorePage /> },
       ],
     },
   ]);

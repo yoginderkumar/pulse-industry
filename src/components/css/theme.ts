@@ -241,4 +241,5 @@ export const SIZES = {
   "1/2": "50%",
   "1/3": "33.33333%",
   full: "100%",
+  "fit-content": "fit-content",
 } as const;

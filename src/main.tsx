@@ -17,6 +17,7 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
           style: {
             background: "#2c324b",
             color: "#fff",
+            fontSize: 12,
           },
           success: {
             duration: 5000,
