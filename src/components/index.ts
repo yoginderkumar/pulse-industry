@@ -5,3 +5,4 @@ export * from "./Stack";
 export * from "./Box";
 export * from "./Text";
 export * from "./Avatar";
+export * from "./DataFallback";

@@ -17,9 +17,10 @@ import {
   RedirectToDashboardHome,
 } from "./redirects";
 import ProfilePage from "./pages/ProfilePage";
-import { Inline, SpinnerIcon } from "./components";
+import { DataLoadingFallback } from "./components";
 import AddNewStorePage from "./pages/AddNewStore";
 import StorePage from "./pages/Store";
+import AddNewProductPage from "./pages/AddNewProduct";
 
 function App() {
   const firebaseApp = useFirebaseApp();
@@ -70,7 +71,10 @@ function App() {
           children: [
             {
               path: ":storeId",
-              element: <StorePage />,
+              children: [
+                { path: "", element: <StorePage /> },
+                { path: "add-new-product", element: <AddNewProductPage /> },
+              ],
             },
           ],
         },
@@ -84,17 +88,7 @@ function App() {
       <FirestoreProvider sdk={firestore}>
         <SuspenseWithPerf
           traceId={"auth-wait"}
-          fallback={
-            <Inline
-              minHeight="screen"
-              alignItems="center"
-              justifyContent="center"
-              gap="3"
-              fontSize="sm"
-            >
-              <SpinnerIcon /> Loading...
-            </Inline>
-          }
+          fallback={<DataLoadingFallback label="Authenticating..." />}
         >
           <RouterProvider router={router} />
         </SuspenseWithPerf>

@@ -9,9 +9,14 @@ import {
   setDoc,
   where,
 } from "firebase/firestore";
-import { useCallback } from "react";
+import { useCallback, useMemo, useRef } from "react";
 import toast from "react-hot-toast";
-import { useFirestore, useFirestoreCollectionData, useUser } from "reactfire";
+import {
+  useFirestore,
+  useFirestoreCollectionData,
+  useFirestoreDocData,
+  useUser,
+} from "reactfire";
 import { Omit } from "utility-types";
 
 type TStore = {
@@ -34,10 +39,25 @@ function useStoreCollection() {
   return collection(store, "Stores") as CollectionReference<TStore>;
 }
 
-// function useStoreDocument(storeId: string) {
-//   const storeCollection = useStoreCollection();
-//   return doc(storeCollection, storeId);
-// }
+function useStoreDocument(storeId: string) {
+  const storeCollection = useStoreCollection();
+  return doc(storeCollection, storeId);
+}
+
+export type TeamMember = {
+  id: string;
+  name: string;
+  email?: string;
+  phoneNumber?: string;
+};
+
+export function useInvolvedTeamCollection(storeId: string) {
+  const storeDoc = useStoreDocument(storeId);
+  return collection(
+    storeDoc,
+    "InvolvedTeam"
+  ) as CollectionReference<TeamMember>;
+}
 
 type LocationApiResponse = {
   address_line1: string;
@@ -98,5 +118,48 @@ export function useStores() {
   });
   return {
     stores,
+  };
+}
+
+export function useEnsuredStore(bookId: string) {
+  const storeDoc = useStoreDocument(bookId);
+  const { data: storeData } = useFirestoreDocData(storeDoc, { idField: "uid" });
+  // Create a ref of current data and pass it down.
+  // This allows us to handle the book deletion
+  const storeRef = useRef(storeData);
+  let isDeleted = false;
+  if (storeData && storeData.name) {
+    // always keep the data in sync
+    storeRef.current = storeData;
+  } else {
+    isDeleted = true;
+  }
+  if (!storeRef.current) {
+    throw new Error("Store not found");
+  }
+  return { store: storeRef.current, isDeleted };
+}
+
+export function useStore(storeId: string) {
+  const { store } = useEnsuredStore(storeId);
+  //   const involvedTeamCollection = useInvolvedTeamCollection(storeId);
+  //   const { data: involvedTeamData } = useFirestoreCollectionData(
+  //     query(involvedTeamCollection, orderBy("name", "asc")),
+  //     { idField: "id" }
+  //   );
+
+  const involvedTeam:
+    | {
+        owner: TeamMember;
+        admins?: Array<TeamMember>;
+        managers?: Array<TeamMember>;
+      }
+    | undefined = useMemo(() => {
+    return undefined;
+  }, []);
+
+  return {
+    store,
+    involvedTeam,
   };
 }

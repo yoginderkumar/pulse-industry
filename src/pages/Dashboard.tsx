@@ -114,14 +114,13 @@ export function DashboardLayout() {
   const { user } = useProfile();
   const { pathname } = useLocation();
 
-  const removeDefaultHeader: boolean = useMemo(() => {
+  const removeDefaultLayout: boolean = useMemo(() => {
     if (pathname.includes("/home") || pathname.includes("/profile")) {
       return false;
     }
     return true;
   }, [pathname]);
 
-  console.log("rem: ", removeDefaultHeader, pathname);
   return (
     <Stack alignItems="center" justifyContent="center">
       <Stack
@@ -131,7 +130,7 @@ export function DashboardLayout() {
         height="full"
         minHeight="screen"
       >
-        {removeDefaultHeader ? null : (
+        {removeDefaultLayout ? null : (
           <Inline
             position="fixed"
             top="0"
@@ -154,49 +153,51 @@ export function DashboardLayout() {
         )}
         <Box
           flex="1"
-          paddingY={removeDefaultHeader ? "0" : "16"}
+          paddingY={removeDefaultLayout ? "0" : "16"}
           height="full"
           overflow="auto"
         >
           <Outlet />
         </Box>
-        <Inline
-          position="fixed"
-          bottom="0"
-          width="full"
-          borderTopWidth="1"
-          paddingY="2"
-          paddingX="4"
-          gap="4"
-          zIndex="10"
-          maxWidth="md"
-          backgroundColor="surfaceDefault"
-          justifyContent="between"
-          borderColor="borderSeparator"
-        >
-          <Stack
-            textAlign="center"
+        {removeDefaultLayout ? null : (
+          <Inline
+            position="fixed"
+            bottom="0"
             width="full"
-            alignItems="center"
-            as={Link}
-            to="/dashboard"
-            justifyContent="center"
+            borderTopWidth="1"
+            paddingY="2"
+            paddingX="4"
+            gap="4"
+            zIndex="10"
+            maxWidth="md"
+            backgroundColor="surfaceDefault"
+            justifyContent="between"
+            borderColor="borderSeparator"
           >
-            <HomeIcon />
-            <Text fontSize="sm">Home</Text>
-          </Stack>
-          <Stack
-            width="full"
-            textAlign="center"
-            alignItems="center"
-            justifyContent="center"
-            as={Link}
-            to="profile"
-          >
-            <OfficeIcon />
-            <Text fontSize="sm">Profile</Text>
-          </Stack>
-        </Inline>
+            <Stack
+              textAlign="center"
+              width="full"
+              alignItems="center"
+              as={Link}
+              to="/dashboard"
+              justifyContent="center"
+            >
+              <HomeIcon />
+              <Text fontSize="sm">Home</Text>
+            </Stack>
+            <Stack
+              width="full"
+              textAlign="center"
+              alignItems="center"
+              justifyContent="center"
+              as={Link}
+              to="profile"
+            >
+              <OfficeIcon />
+              <Text fontSize="sm">Profile</Text>
+            </Stack>
+          </Inline>
+        )}
       </Stack>
     </Stack>
   );

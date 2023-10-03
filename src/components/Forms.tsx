@@ -15,6 +15,7 @@ export function InputField({
   noMargin,
   placeholder,
   onChange,
+  onKeyDown,
 }: {
   id?: string;
   placeholder?: string;
@@ -25,6 +26,7 @@ export function InputField({
   type?: React.HTMLInputTypeAttribute;
   value?: string | number | readonly string[];
   onChange?: React.ChangeEventHandler<HTMLInputElement>;
+  onKeyDown?: React.KeyboardEventHandler<HTMLInputElement>;
 }) {
   const errorMessage = typeof error === "string" ? error : error?.message;
   return (
@@ -51,6 +53,7 @@ export function InputField({
         placeholder={placeholder || label}
         className={classNames("appearance-none outline-none focus:ring-0 peer")}
         onChange={onChange}
+        onKeyDown={onKeyDown}
       />
       {label || placeholder ? (
         <Box

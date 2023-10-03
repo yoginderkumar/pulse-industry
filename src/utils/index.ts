@@ -12,3 +12,17 @@ export function getLocation(): Promise<number[]> {
     );
   });
 }
+
+export function normalizeNumber(
+  n: number,
+  digitsAfterDecimal: number | undefined = 2
+): number {
+  let str = n.toString();
+  if (digitsAfterDecimal !== undefined) {
+    str = Number(str).toFixed(digitsAfterDecimal).toString();
+  }
+  if (parseInt(str) === parseFloat(str)) {
+    str = parseInt(str).toString();
+  }
+  return Number(str);
+}

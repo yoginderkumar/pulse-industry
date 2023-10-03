@@ -27,13 +27,13 @@ export default function Page({
         <Inline height="full" alignItems="center" gap="4">
           {!backTo ? null : typeof backTo === "string" ? (
             <Link to={backTo}>
-              <ArrowLeftIcon />
+              <ArrowLeftIcon size="5" />
             </Link>
           ) : (
             backTo
           )}
           <Box flex="1">
-            <Text as="h1" fontSize="lg">
+            <Text as="h1" fontSize="md">
               {title}
             </Text>
           </Box>
