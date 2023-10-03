@@ -3,13 +3,15 @@ import {
   Timestamp,
   collection,
   doc,
+  limit,
   orderBy,
   query,
   serverTimestamp,
   setDoc,
+  startAfter,
   where,
 } from "firebase/firestore";
-import { useCallback } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useFirestore, useFirestoreCollectionData, useUser } from "reactfire";
 
 type TProduct = {
@@ -39,18 +41,37 @@ function useProductsCollection() {
 //   return doc(storeCollection, storeId);
 // }
 
+const pageSize = 4;
+
 export function useProducts(storeId: string) {
+  const [currentPage, setCurrentPage] = useState<number>(1);
+  const [products, setProducts] = useState<TProduct[]>([]);
   const productsCollection = useProductsCollection();
+  const startAfterDoc = currentPage > 1 ? products[currentPage - 2] : null;
   const productQuery = query(
     productsCollection,
     where("storeId", "==", storeId),
-    orderBy("updatedAt", "asc")
+    orderBy("updatedAt", "asc"),
+    startAfter(startAfterDoc),
+    limit(pageSize)
   );
-  const { data: products } = useFirestoreCollectionData(productQuery, {
+  const { data } = useFirestoreCollectionData(productQuery, {
     idField: "id",
   });
+
+  useEffect(() => {
+    if (data.length) {
+      setProducts(data);
+    }
+  }, [data]);
+
+  function fetchMore() {
+    setCurrentPage((prev) => prev + 1);
+  }
+
   return {
     products,
+    fetchMore,
   };
 }
 
@@ -67,7 +88,6 @@ export function useAddProduct(storeId: string) {
   return useCallback(
     async (data: AddStoreDataPayload) => {
       const productRef = doc(productCollection);
-      console.log("data: ", data.tags);
       await setDoc(productRef, {
         id: productRef.id,
         name: data.name,

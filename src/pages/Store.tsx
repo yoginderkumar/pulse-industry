@@ -6,11 +6,9 @@ import {
   DataLoadingFallback,
   Inline,
   InventoryIcon,
-  LocationOnIcon,
   PlusIcon,
   SettingsIcon,
   Stack,
-  StoreIcon,
   Text,
 } from "../components";
 import Page from "./Page";
@@ -33,9 +31,7 @@ export default function StorePage() {
 function Store({ storeId }: { storeId: string }) {
   const navigate = useNavigate();
   const { store } = useStore(storeId);
-  const { products } = useProducts(storeId);
-
-  console.log("products: ", products);
+  const { products, fetchMore } = useProducts(storeId);
   return (
     <Page
       backTo="/dashboard/home"
@@ -46,34 +42,8 @@ function Store({ storeId }: { storeId: string }) {
         </Box>
       }
     >
-      <Stack gap="6" paddingX="6" paddingY="4" position="relative">
-        <Stack gap="3">
-          <Inline gap="3">
-            <Box>
-              <StoreIcon size="8" />
-            </Box>
-            <Stack>
-              <Inline gap="4" alignItems="center" justifyContent="between">
-                <Text fontWeight="semibold">{store.name}</Text>
-                <Inline alignItems="center" gap="1">
-                  <LocationOnIcon size="3" />
-                  <Text fontSize="xs">{store.address.cityAndState}</Text>
-                </Inline>
-              </Inline>
-              <Text fontSize="sm">{store.about}</Text>
-            </Stack>
-          </Inline>
-          {store.address ? (
-            <Text fontSize="sm" fontWeight="semibold">
-              Address :{" "}
-              <Text as="span" fontWeight="normal">
-                {store.address.addressLine1},{" "}
-                {` ${store.address.cityAndState} `} - {store.address.pinCode}
-              </Text>
-            </Text>
-          ) : null}
-        </Stack>
-        <Stack gap="3">
+      <Stack gap="6" paddingX="6" paddingY="1" position="relative">
+        <Stack>
           <Box
             position="sticky"
             top="0"
@@ -85,50 +55,53 @@ function Store({ storeId }: { storeId: string }) {
             </Text>
           </Box>
           {products?.length ? (
-            <Stack as="ul" gap="3">
-              {products.map((product) => (
-                <Inline
-                  key={product.id}
-                  borderWidth="1"
-                  borderColor="borderSeparator"
-                  rounded="md"
-                  paddingY="3"
-                  paddingX="4"
-                  gap="4"
-                  onClick={() => navigate(`products/${product.id}`)}
-                >
-                  <Box>
-                    <InventoryIcon />
-                  </Box>
-                  <Stack gap="3">
-                    <Stack gap="1">
-                      <Inline alignItems="center" justifyContent="between">
-                        <Text fontSize="sm" fontWeight="semibold">
-                          {product.name}
-                        </Text>
-                        <Inline fontSize="sm">
-                          <Amount amount={product.price} />
-                          <Text>/Piece</Text>
+            <Stack gap="6">
+              <Stack as="ul" gap="3">
+                {products.map((product) => (
+                  <Inline
+                    key={product.id}
+                    borderWidth="1"
+                    borderColor="borderSeparator"
+                    rounded="md"
+                    paddingY="3"
+                    paddingX="4"
+                    gap="4"
+                    onClick={() => navigate(`products/${product.id}`)}
+                  >
+                    <Box>
+                      <InventoryIcon />
+                    </Box>
+                    <Stack gap="3">
+                      <Stack gap="1">
+                        <Inline alignItems="center" justifyContent="between">
+                          <Text fontSize="sm" fontWeight="semibold">
+                            {product.name}
+                          </Text>
+                          <Inline fontSize="sm">
+                            <Amount amount={product.price} />
+                            <Text>/Piece</Text>
+                          </Inline>
                         </Inline>
+                        <Box className="line-clamp-3">
+                          <Text fontSize="xs">{product.description}</Text>
+                        </Box>
+                      </Stack>
+                      <Inline flexWrap="wrap" gap="2">
+                        <Box fontSize="xs">
+                          <Text>Available Items: {product.inventory.left}</Text>
+                        </Box>
+                        <Box fontSize="xs">
+                          <Text>Sold Items: {product.inventory.sold}</Text>
+                        </Box>
+                        <Box fontSize="xs">
+                          <Text>Total Items: {product.inventory.total}</Text>
+                        </Box>
                       </Inline>
-                      <Box className="line-clamp-3">
-                        <Text fontSize="xs">{product.description}</Text>
-                      </Box>
                     </Stack>
-                    <Inline flexWrap="wrap" gap="2">
-                      <Box fontSize="xs">
-                        <Text>Available Items: {product.inventory.left}</Text>
-                      </Box>
-                      <Box fontSize="xs">
-                        <Text>Sold Items: {product.inventory.sold}</Text>
-                      </Box>
-                      <Box fontSize="xs">
-                        <Text>Total Items: {product.inventory.total}</Text>
-                      </Box>
-                    </Inline>
-                  </Stack>
-                </Inline>
-              ))}
+                  </Inline>
+                ))}
+              </Stack>
+              <Button onClick={fetchMore}>Fetch More</Button>
             </Stack>
           ) : (
             <Stack
@@ -154,7 +127,7 @@ function Store({ storeId }: { storeId: string }) {
         </Stack>
       </Stack>
       <Box position="fixed" style={{ bottom: 32, right: 24 }}>
-        <Button>
+        <Button path="add-new-product">
           <PlusIcon />
           Add More
         </Button>

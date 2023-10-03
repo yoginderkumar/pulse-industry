@@ -5,11 +5,11 @@ import {
   Button,
   HomeIcon,
   Inline,
-  OfficeIcon,
   StoreIcon,
   Stack,
   PlusIcon,
   LocationOnIcon,
+  UserIcon,
 } from "../components";
 import { Text } from "../components/Text";
 import { useProfile, useStores } from "../data";
@@ -18,7 +18,6 @@ import { useMemo } from "react";
 export default function DashboardPage() {
   const { stores } = useStores();
   const navigate = useNavigate();
-  const { user } = useProfile();
   return (
     <Stack paddingY="2" paddingX="6">
       {stores?.length ? (
@@ -53,19 +52,6 @@ export default function DashboardPage() {
                     <Text fontSize="sm">{store.about}</Text>
                   </Box>
                 </Stack>
-                <Text fontSize="sm">
-                  Role:{" "}
-                  <Text
-                    as="span"
-                    backgroundColor="surfaceSuccess"
-                    style={{ padding: "2px 4px" }}
-                    rounded="md"
-                    fontSize="xs"
-                    color="textOnSurface"
-                  >
-                    {user.uid === store.ownerId ? "Owner" : "Other"}
-                  </Text>{" "}
-                </Text>
               </Stack>
             </Inline>
           ))}
@@ -114,6 +100,10 @@ export function DashboardLayout() {
   const { user } = useProfile();
   const { pathname } = useLocation();
 
+  const active = useMemo(() => {
+    return pathname.includes("home") ? "home" : "profile";
+  }, [pathname]);
+
   const removeDefaultLayout: boolean = useMemo(() => {
     if (pathname.includes("/home") || pathname.includes("/profile")) {
       return false;
@@ -146,8 +136,11 @@ export function DashboardLayout() {
             style={{ boxShadow: "0px 4px 10px 0px rgba(0, 0, 0, 0.06)" }}
           >
             <Inline gap="2" alignItems="center">
-              <Avatar id={user.uid} name={user?.displayName} />
-              <Text>{user?.displayName || user?.email}</Text>
+              <Avatar
+                id={user?.uid || "user"}
+                name={user?.displayName || "U"}
+              />
+              <Text>{user?.displayName || "User"}</Text>
             </Inline>
           </Inline>
         )}
@@ -181,6 +174,7 @@ export function DashboardLayout() {
               as={Link}
               to="/dashboard"
               justifyContent="center"
+              color={active === "home" ? "textPrimary" : "textMedium"}
             >
               <HomeIcon />
               <Text fontSize="sm">Home</Text>
@@ -192,8 +186,9 @@ export function DashboardLayout() {
               justifyContent="center"
               as={Link}
               to="profile"
+              color={active === "profile" ? "textPrimary" : "textMedium"}
             >
-              <OfficeIcon />
+              <UserIcon />
               <Text fontSize="sm">Profile</Text>
             </Stack>
           </Inline>

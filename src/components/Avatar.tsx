@@ -50,7 +50,7 @@ export const Avatar: AvatarComponent = forwardRef(
         justifyContent="center"
       >
         <Text color="textOnSurface" fontSize={fontSize}>
-          {name?.[0] || "U"}
+          {(name?.[0] || "U").toUpperCase()}
         </Text>
       </Inline>
     );

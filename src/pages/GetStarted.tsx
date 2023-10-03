@@ -15,7 +15,9 @@ export default function GetStartedPage() {
       </div>
       <div className="px-6 pb-12 text-center absolute bottom-0 w-full">
         <div className="flex flex-col gap-2">
-          <Button path="/login">Login</Button>
+          <Button fullWidth path="/login">
+            Login
+          </Button>
           <p className="text-sm">
             Don't have an account?{" "}
             <a className="font-bold" href="/sign-up">

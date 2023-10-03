@@ -4,6 +4,7 @@ import { Link } from "react-router-dom";
 import { Box } from "./Box";
 import { Text } from "./Text";
 import { SpinnerIcon } from "./Icons";
+import { Inline } from ".";
 
 export function InputField({
   id,
@@ -14,6 +15,7 @@ export function InputField({
   error,
   noMargin,
   placeholder,
+  checked,
   onChange,
   onKeyDown,
 }: {
@@ -25,11 +27,40 @@ export function InputField({
   noMargin?: boolean;
   type?: React.HTMLInputTypeAttribute;
   value?: string | number | readonly string[];
+  checked?: boolean;
   onChange?: React.ChangeEventHandler<HTMLInputElement>;
   onKeyDown?: React.KeyboardEventHandler<HTMLInputElement>;
 }) {
   const errorMessage = typeof error === "string" ? error : error?.message;
-  return (
+  return type === "radio" ? (
+    <Inline position="relative" gap="2">
+      <Box
+        as="input"
+        type="radio"
+        id={id || name}
+        name={name}
+        checked={checked}
+        value={value}
+        onChange={onChange}
+      />
+      <Box as="label" htmlFor={id || name}>
+        <Text fontSize="sm" fontWeight="medium">
+          {label}
+        </Text>
+      </Box>
+      {errorMessage?.length ? (
+        <Text
+          fontSize="xs"
+          color="textError"
+          paddingTop="4"
+          paddingX="1"
+          position="absolute"
+        >
+          {errorMessage}
+        </Text>
+      ) : null}
+    </Inline>
+  ) : (
     <Box position="relative" width="full" marginBottom={noMargin ? "0" : "4"}>
       <Box
         as="input"
@@ -77,7 +108,7 @@ export function InputField({
       ) : null}
       {errorMessage?.length ? (
         <Text
-          fontSize="sm"
+          fontSize="xs"
           color="textError"
           paddingTop="1"
           paddingX="1"
@@ -128,6 +159,7 @@ export function Button({
       onClick={onClick}
       display="flex"
       alignItems="center"
+      gap="2"
       justifyContent="center"
     >
       {children}

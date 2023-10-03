@@ -88,12 +88,12 @@ function AddNewProduct({ storeId }: { storeId: string }) {
   });
   const addProduct = useAddProduct(storeId);
 
-  const { control, handleSubmit } = addProductForm;
+  const { control, handleSubmit, getValues, setValue } = addProductForm;
 
-  async function addProductClick(data: AddProductForm) {
+  async function addProductClick() {
     setIsAddingProduct(true);
     try {
-      console.log("data; ", data.tags);
+      const data = getValues();
       const productId = await addProduct({
         ...data,
         tags: data.tags,
@@ -101,6 +101,12 @@ function AddNewProduct({ storeId }: { storeId: string }) {
       });
       if (productId) {
         setIsAddingProduct(false);
+        setValue("name", "");
+        setValue("description", "");
+        setValue("inventory", 0);
+        setValue("price", 0);
+        setValue("tags", []);
+        toast.success("Added product successfully!");
       }
     } catch (e) {
       const error = e as Error;
@@ -110,9 +116,11 @@ function AddNewProduct({ storeId }: { storeId: string }) {
   }
 
   return (
-    <Page backTo={`/dashboard/stores/${storeId}`} title="Add New Product">
+    <Page
+      backTo={`/dashboard/stores/${storeId}`}
+      title={`Add New Product - ${store.name} `}
+    >
       <Stack paddingX="6" paddingY="4" gap="4">
-        <Text>Add a new product - {store.name}</Text>
         <Stack gap="3">
           <Stack gap="2">
             <Controller

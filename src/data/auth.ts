@@ -10,6 +10,11 @@ import {
   getFirestore,
   setDoc,
   CollectionReference,
+  query,
+  where,
+  limit,
+  getDocs,
+  getDoc,
 } from "firebase/firestore";
 import { useCallback } from "react";
 import {
@@ -66,6 +71,9 @@ export function useRegister() {
         );
         if (fullName) {
           create({ ...user, displayName: fullName });
+          updateProfile(user, {
+            displayName: fullName,
+          });
         }
       } catch (e) {
         const error = e as Error;
@@ -96,12 +104,6 @@ export function useCreateProfile() {
   return async function create(authUser: User) {
     const firestore = getFirestore(firebaseApp);
     const userDoc = doc(collection(firestore, "Users"), authUser.uid);
-    if (authUser.displayName) {
-      // update the auth profile
-      updateProfile(authUser, {
-        displayName: authUser.displayName,
-      });
-    }
     await setDoc(userDoc, {
       email: authUser.email,
       displayName: authUser.displayName,
@@ -151,4 +153,41 @@ export function useProfile() {
   return {
     user,
   };
+}
+
+export function useCheckUserExistence() {
+  const userCollection = useUserCollection();
+  return useCallback(
+    async (email: string) => {
+      const usersQuery = query(
+        userCollection,
+        where("email", "==", email),
+        limit(1)
+      );
+      const usersSnapShot = await getDocs(usersQuery);
+      const doesExist = Boolean(!usersSnapShot.empty);
+      let userId = "";
+      if (doesExist) {
+        usersSnapShot.forEach((docRef) => {
+          userId = docRef.id;
+        });
+      }
+      return { doesExist: doesExist, userId: userId };
+    },
+    [userCollection]
+  );
+}
+
+export function useUserData() {
+  const userCollection = useUserCollection();
+  return useCallback(
+    async (userId: string) => {
+      const userDocRef = doc(userCollection, userId);
+      const user = (await getDoc(userDocRef)).data();
+      return {
+        user,
+      };
+    },
+    [userCollection]
+  );
 }

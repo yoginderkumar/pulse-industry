@@ -21,6 +21,8 @@ import { DataLoadingFallback } from "./components";
 import AddNewStorePage from "./pages/AddNewStore";
 import StorePage from "./pages/Store";
 import AddNewProductPage from "./pages/AddNewProduct";
+import StoreSettingsPage from "./pages/StoreSettings";
+import AddNewMemberPage from "./pages/AddTeamMember";
 
 function App() {
   const firebaseApp = useFirebaseApp();
@@ -74,6 +76,13 @@ function App() {
               children: [
                 { path: "", element: <StorePage /> },
                 { path: "add-new-product", element: <AddNewProductPage /> },
+                {
+                  path: "settings",
+                  children: [
+                    { path: "", element: <StoreSettingsPage /> },
+                    { path: "add-team-member", element: <AddNewMemberPage /> },
+                  ],
+                },
               ],
             },
           ],

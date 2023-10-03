@@ -192,7 +192,11 @@ export default function SignUpPage() {
             Privacy Policy
           </Text>
         </Text>
-        <Button onClick={handleSubmit(onCreateAccount)} loading={loading}>
+        <Button
+          fullWidth
+          onClick={handleSubmit(onCreateAccount)}
+          loading={loading}
+        >
           Create Account
         </Button>
         <Inline alignItems="center" gap="2">

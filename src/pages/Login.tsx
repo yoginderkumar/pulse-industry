@@ -118,21 +118,7 @@ export default function LoginPage() {
               );
             }}
           />
-          <Text
-            as={Link}
-            to="/forgot-password"
-            color="textPrimary"
-            textAlign="right"
-            fontWeight="semibold"
-            fontSize="sm"
-          >
-            Forgot Password?
-          </Text>
-          <Button
-            className="mt-4"
-            loading={loading}
-            onClick={handleSubmit(onLogin)}
-          >
+          <Button fullWidth loading={loading} onClick={handleSubmit(onLogin)}>
             Login
           </Button>
           <Inline alignItems="center" gap="2">
@@ -154,9 +140,14 @@ export default function LoginPage() {
           </Inline>
           <p className="text-center text-sm">
             New here?{" "}
-            <Link to="/sign-up" className="font-semibold text-sky-900">
+            <Text
+              as={Link}
+              to="/sign-up"
+              className="font-semibold"
+              color="textPrimary"
+            >
               Create an account
-            </Link>
+            </Text>
           </p>
         </Stack>
       </Stack>
