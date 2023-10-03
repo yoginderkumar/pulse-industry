@@ -96,7 +96,12 @@ export function useAddStore() {
   const { data: user } = useUser();
   const storeCollection = useStoreCollection();
   return useCallback(
-    async (data: Omit<TStore, "uid" | "ownerId" | "createdAt" | "owner">) => {
+    async (
+      data: Omit<
+        TStore,
+        "uid" | "ownerId" | "createdAt" | "owner" | "updatedAt" | "sharedWith"
+      >
+    ) => {
       const storeRef = doc(storeCollection);
       await setDoc(storeRef, {
         ...data,
