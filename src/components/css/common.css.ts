@@ -1,5 +1,5 @@
 import { defineProperties, createSprinkles } from "@vanilla-extract/sprinkles";
-import { BORDER_COLORS, BREAKPOINTS, SPACING, TEXT_COLORS } from "./theme";
+import { COLORS, BREAKPOINTS, SPACING } from "./theme";
 
 const paddingProperties = defineProperties({
   conditions: BREAKPOINTS,
@@ -80,7 +80,7 @@ const borderColorProperties = defineProperties({
   },
   defaultCondition: "default",
   properties: {
-    color: BORDER_COLORS,
+    color: COLORS,
   },
 });
 
@@ -95,7 +95,7 @@ const inputColorProperties = defineProperties({
   },
   defaultCondition: "default",
   properties: {
-    color: TEXT_COLORS,
+    color: COLORS,
   },
 });
 

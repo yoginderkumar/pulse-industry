@@ -16,13 +16,12 @@ import { CSSTransition } from "react-transition-group";
 import { BoxOwnProps } from "./Box";
 import { Inline } from "./Inline";
 
+// eslint-disable-next-line react-refresh/only-export-components
 export { useOverlayTriggerState, OverlayProvider };
 
 const ModalContext = React.createContext<{
-  placement?: "right";
   hasContext: boolean;
 }>({
-  placement: undefined,
   hasContext: false,
 });
 
@@ -32,7 +31,6 @@ function ModalInner(
     children: React.ReactNode;
     autoFocus?: boolean;
     size?: "sm" | "md" | "lg";
-    placement?: "right";
     status?: "error" | "info" | "warning" | "success";
     onBackPress?: () => void;
     containerRef: React.RefObject<HTMLDivElement>;
@@ -42,7 +40,6 @@ function ModalInner(
     title,
     children,
     autoFocus = true,
-    placement,
     status,
     containerRef,
     onBackPress,
@@ -63,10 +60,9 @@ function ModalInner(
 
   const modalContext = useMemo(() => {
     return {
-      placement,
       hasContext: true,
     };
-  }, [placement]);
+  }, []);
 
   return (
     <OverlayContainer>
@@ -79,18 +75,18 @@ function ModalInner(
         <FocusScope contain restoreFocus autoFocus={autoFocus}>
           <ModalContext.Provider value={modalContext}>
             <div
-              className={classNames("relative w-auto", {
+              className={classNames("relative w-auto px-3", {
                 "max-w-xl": !props.size || props.size === "sm",
                 "max-w-4xl": props.size === "md",
                 "max-w-6xl": props.size === "lg",
-                "mx-auto my-20  px-4 sm:px-0 flex items-center": !placement,
-                "h-screen h-[-webkit-fill-available] overflow-auto": placement,
-                "ml-auto pl-4 sm:pl-0": placement === "right",
               })}
               style={{
                 // this allows us to center align the inner content
                 // NOTE: we remove the margins
-                minHeight: "calc(100% - (5rem * 2))",
+                minHeight: "100%",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
               }}
             >
               <div
@@ -98,10 +94,9 @@ function ModalInner(
                 {...dialogProps}
                 {...modalProps}
                 ref={ref}
-                className={classNames("bg-white text-gray-900 w-full", {
-                  "rounded-lg": !placement,
-                  "min-h-full": placement,
-                })}
+                className={classNames(
+                  "bg-white text-gray-900 w-full rounded-lg"
+                )}
               >
                 <ModalHeader className="relative">
                   <div className="flex justify-between items-center">
@@ -148,39 +143,23 @@ export function Modal(
   // Handle interacting outside the dialog and pressing
   // the Escape key to close the modal.
   const ref = useRef<HTMLDivElement>(null);
-  const { placement } = props;
   return (
     <CSSTransition
       in={props.isOpen}
       timeout={100}
       nodeRef={ref}
-      classNames={
-        placement === "right"
-          ? {
-              // SLIDE-in-out
-              // enter start position
-              enter: "transform translate-x-8 opacity-0",
-              enterActive:
-                "transition duration-100 ease-out transform !translate-x-0 !opacity-100",
-              // enter end position
-              enterDone: "transform translate-x-0 opacity-100",
-              // exiting position
-              exitActive:
-                "transition duration-100 ease-out transform !translate-x-8 !opacity-0",
-            }
-          : {
-              // FADE-in-out
-              // enter start position
-              enter: "transform scale-95 opacity-0",
-              enterActive:
-                "transition duration-100 ease-out transform !scale-100 !opacity-100",
-              // enter end position
-              enterDone: "transform scale-100 opacity-100",
-              // exiting position
-              exitActive:
-                "transition duration-100 ease-out transform !scale-95 !opacity-0",
-            }
-      }
+      classNames={{
+        // FADE-in-out
+        // enter start position
+        enter: "transform scale-95 opacity-0",
+        enterActive:
+          "transition duration-100 ease-out transform !scale-100 !opacity-100",
+        // enter end position
+        enterDone: "transform scale-100 opacity-100",
+        // exiting position
+        exitActive:
+          "transition duration-100 ease-out transform !scale-95 !opacity-0",
+      }}
       unmountOnExit
     >
       <ModalInner {...props} containerRef={ref} />
@@ -208,7 +187,6 @@ function ModalHeader({
 
 export function ModalBody({
   className,
-  autoMaxHeight,
   ...props
 }: React.DetailedHTMLProps<
   React.HTMLAttributes<HTMLDivElement>,
@@ -216,10 +194,11 @@ export function ModalBody({
 > & {
   autoMaxHeight?: boolean;
 }) {
-  const { placement, hasContext } = useContext(ModalContext);
+  const { hasContext } = useContext(ModalContext);
   return (
     <div
       className={classNames(
+        "max-h-[calc(100vh-80px*2-73px-98px)] overflow-auto",
         className,
         !hasContext
           ? {
@@ -227,12 +206,6 @@ export function ModalBody({
             }
           : {
               "py-4 sm:py-5 px-4 sm:px-8": true,
-              "overflow-auto": !autoMaxHeight,
-              "max-h-auto": autoMaxHeight,
-              "max-h-[calc(100vh-80px*2-73px-98px)]":
-                !autoMaxHeight && !placement,
-              "h-[calc(100vh-65px-81px)] sm:h-[calc(100vh-73px-98px)]":
-                !autoMaxHeight && placement === "right",
             }
       )}
       {...props}

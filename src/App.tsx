@@ -20,10 +20,12 @@ import ProfilePage from "./pages/ProfilePage";
 import { DataLoadingFallback, OverlayProvider } from "./components";
 import AddNewStorePage from "./pages/AddNewStore";
 import StorePage from "./pages/Store";
-import AddNewProductPage from "./pages/AddNewProduct";
-import StoreSettingsPage from "./pages/StoreSettings";
-import AddNewMemberPage from "./pages/AddTeamMember";
-import ProductPage from "./pages/Product";
+import { lazy } from "react";
+
+const ProductPage = lazy(() => import("./pages/Product"));
+const AddNewMemberPage = lazy(() => import("./pages/AddTeamMember"));
+const StoreSettingsPage = lazy(() => import("./pages/StoreSettings"));
+const AddNewProductPage = lazy(() => import("./pages/AddNewProduct"));
 
 function App() {
   const firebaseApp = useFirebaseApp();
