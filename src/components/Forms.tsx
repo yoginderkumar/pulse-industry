@@ -16,6 +16,9 @@ export function InputField({
   noMargin,
   placeholder,
   checked,
+  readonly,
+  disabled,
+  autoFocus,
   onChange,
   onKeyDown,
 }: {
@@ -28,6 +31,9 @@ export function InputField({
   type?: React.HTMLInputTypeAttribute;
   value?: string | number | readonly string[];
   checked?: boolean;
+  readonly?: boolean;
+  disabled?: boolean;
+  autoFocus?: boolean;
   onChange?: React.ChangeEventHandler<HTMLInputElement>;
   onKeyDown?: React.KeyboardEventHandler<HTMLInputElement>;
 }) {
@@ -42,6 +48,7 @@ export function InputField({
         checked={checked}
         value={value}
         onChange={onChange}
+        readOnly={readonly}
       />
       <Box as="label" htmlFor={id || name}>
         <Text fontSize="sm" fontWeight="medium">
@@ -72,6 +79,7 @@ export function InputField({
         backgroundColor="transparent"
         rounded="lg"
         borderWidth="1"
+        autoFocus={autoFocus}
         borderColor={{
           default: errorMessage?.length ? "borderError" : "borderSeparator",
           focus: errorMessage?.length ? "borderError" : "borderPrimary",
@@ -81,6 +89,7 @@ export function InputField({
         paddingTop={label ? "4" : "3"}
         width="full"
         value={value}
+        disabled={disabled}
         placeholder={placeholder || label}
         className={classNames("appearance-none outline-none focus:ring-0 peer")}
         onChange={onChange}
@@ -129,6 +138,7 @@ export function Button({
   disabled,
   mode,
   fullWidth,
+  status,
   onClick,
 }: {
   path?: string;
@@ -140,6 +150,7 @@ export function Button({
   onClick?: () => void;
   mode?: "outlined";
   fullWidth?: boolean;
+  status?: "error" | "default";
 }) {
   disabled = disabled || loading;
   return path?.length ? (
@@ -172,7 +183,13 @@ export function Button({
       height={"10"}
       width={fullWidth ? "full" : "fit-content"}
       color={
-        mode === "outlined" ? "textPrimary" : disabled ? "textLow" : "textWhite"
+        mode === "outlined"
+          ? status === "error"
+            ? "textError"
+            : "textPrimary"
+          : disabled
+          ? "textLow"
+          : "textWhite"
       }
       onClick={onClick}
       disabled={disabled}
@@ -183,12 +200,20 @@ export function Button({
       justifyContent="center"
       gap="2"
       borderWidth="1"
-      borderColor={mode === "outlined" ? "borderPrimary" : undefined}
+      borderColor={
+        mode === "outlined"
+          ? status === "error"
+            ? "borderError"
+            : "borderPrimary"
+          : undefined
+      }
       backgroundColor={
         mode === "outlined"
           ? "transparent"
           : disabled
           ? "surfaceNeutralLowest"
+          : status === "error"
+          ? "surfaceError"
           : "surfacePrimary"
       }
     >
@@ -206,6 +231,7 @@ export function InputAreaField({
   error,
   rows,
   noMargin,
+  disabled,
   placeholder,
   onChange,
 }: {
@@ -216,6 +242,7 @@ export function InputAreaField({
   label?: string;
   error?: string | Error;
   noMargin?: boolean;
+  disabled?: boolean;
   value?: string | number | readonly string[];
   onChange?: React.ChangeEventHandler<HTMLTextAreaElement>;
 }) {
@@ -241,6 +268,7 @@ export function InputAreaField({
         paddingTop={label ? "4" : "3"}
         width="full"
         value={value}
+        disabled={disabled}
         placeholder={placeholder || label}
         className={classNames("appearance-none outline-none focus:ring-0 peer")}
         onChange={onChange}

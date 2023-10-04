@@ -5,6 +5,7 @@ import {
   Button,
   DataLoadingFallback,
   Inline,
+  InputField,
   InventoryIcon,
   PlusIcon,
   SettingsIcon,
@@ -13,7 +14,8 @@ import {
 } from "../components";
 import Page from "./Page";
 import { SuspenseWithPerf } from "reactfire";
-import { useProducts, useStore } from "../data";
+import { STORE_PERMISSIONS, useProducts, useStore } from "../data";
+import { useMemo, useState } from "react";
 
 export default function StorePage() {
   const { storeId } = useParams();
@@ -30,8 +32,19 @@ export default function StorePage() {
 
 function Store({ storeId }: { storeId: string }) {
   const navigate = useNavigate();
-  const { store } = useStore(storeId);
-  const { products, fetchMore } = useProducts(storeId);
+  const [search, setSearch] = useState<string>("");
+  const { store, checkIfAuthenticatedTeamMemberCan } = useStore(storeId);
+  const { products } = useProducts(storeId);
+  const canAddMoreProducts = checkIfAuthenticatedTeamMemberCan(
+    STORE_PERMISSIONS.ADD_PRODUCT
+  );
+
+  const filteredProducts = useMemo(() => {
+    return products.filter((product) =>
+      product.name.toLowerCase().includes(search.toLowerCase())
+    );
+  }, [search, products]);
+
   return (
     <Page
       backTo="/dashboard/home"
@@ -44,64 +57,97 @@ function Store({ storeId }: { storeId: string }) {
     >
       <Stack gap="6" paddingX="6" paddingY="1" position="relative">
         <Stack>
-          <Box
-            position="sticky"
-            top="0"
-            backgroundColor="surfaceDefault"
-            paddingY="3"
-          >
-            <Text as="h4" fontSize="lg" fontWeight="medium" color="textPrimary">
-              Products
-            </Text>
-          </Box>
+          <Stack gap="4">
+            <Box
+              position="sticky"
+              top="0"
+              backgroundColor="surfaceDefault"
+              paddingY="3"
+            >
+              <Text
+                as="h4"
+                fontSize="lg"
+                fontWeight="medium"
+                color="textPrimary"
+              >
+                Products
+              </Text>
+            </Box>
+            <InputField
+              name="search"
+              value={search}
+              placeholder="Search by name"
+              label="Search Product"
+              onChange={(e) => setSearch(e.target.value)}
+            />
+          </Stack>
           {products?.length ? (
             <Stack gap="6">
-              <Stack as="ul" gap="3">
-                {products.map((product) => (
-                  <Inline
-                    key={product.id}
-                    borderWidth="1"
-                    borderColor="borderSeparator"
-                    rounded="md"
-                    paddingY="3"
-                    paddingX="4"
-                    gap="4"
-                    onClick={() => navigate(`products/${product.id}`)}
-                  >
-                    <Box>
-                      <InventoryIcon />
-                    </Box>
-                    <Stack gap="3">
-                      <Stack gap="1">
-                        <Inline alignItems="center" justifyContent="between">
-                          <Text fontSize="sm" fontWeight="semibold">
-                            {product.name}
-                          </Text>
-                          <Inline fontSize="sm">
-                            <Amount amount={product.price} />
-                            <Text>/Piece</Text>
+              {filteredProducts.length ? (
+                <Stack as="ul" gap="3">
+                  {filteredProducts.map((product) => (
+                    <Inline
+                      key={product.id}
+                      borderWidth="1"
+                      borderColor="borderSeparator"
+                      rounded="md"
+                      paddingY="3"
+                      paddingX="4"
+                      gap="4"
+                      onClick={() => navigate(`products/${product.id}`)}
+                    >
+                      <Box>
+                        <InventoryIcon />
+                      </Box>
+                      <Stack gap="3">
+                        <Stack gap="1">
+                          <Inline alignItems="center" justifyContent="between">
+                            <Text fontSize="sm" fontWeight="semibold">
+                              {product.name}
+                            </Text>
+                            <Inline fontSize="sm">
+                              <Amount amount={product.price} />
+                              <Text>/Piece</Text>
+                            </Inline>
                           </Inline>
-                        </Inline>
-                        <Box className="line-clamp-3">
-                          <Text fontSize="xs">{product.description}</Text>
-                        </Box>
+                          <Box className="line-clamp-3">
+                            <Text fontSize="xs">{product.description}</Text>
+                          </Box>
+                        </Stack>
+                        {product.tags?.length ? (
+                          <Inline as="ul" gap="2" flexWrap="wrap">
+                            {product.tags.map((tag, i) => (
+                              <Inline
+                                key={i}
+                                as="li"
+                                rounded="md"
+                                style={{ padding: "2px 8px" }}
+                                alignItems="center"
+                                backgroundColor="surfacePrimaryLowest"
+                              >
+                                <Text
+                                  fontSize="xs"
+                                  color="textPrimary"
+                                  fontWeight="medium"
+                                >
+                                  {tag}
+                                </Text>
+                              </Inline>
+                            ))}
+                          </Inline>
+                        ) : null}
                       </Stack>
-                      <Inline flexWrap="wrap" gap="2">
-                        <Box fontSize="xs">
-                          <Text>Available Items: {product.inventory.left}</Text>
-                        </Box>
-                        <Box fontSize="xs">
-                          <Text>Sold Items: {product.inventory.sold}</Text>
-                        </Box>
-                        <Box fontSize="xs">
-                          <Text>Total Items: {product.inventory.total}</Text>
-                        </Box>
-                      </Inline>
-                    </Stack>
-                  </Inline>
-                ))}
-              </Stack>
-              <Button onClick={fetchMore}>Fetch More</Button>
+                    </Inline>
+                  ))}
+                </Stack>
+              ) : (
+                <Stack gap="1" textAlign="center">
+                  <Text fontSize="xs" fontWeight="medium">
+                    No products found with this name!
+                  </Text>
+                  <Text fontSize="xs">Try something else.</Text>
+                </Stack>
+              )}
             </Stack>
           ) : (
             <Stack
@@ -119,19 +165,23 @@ function Store({ storeId }: { storeId: string }) {
                   Add products available at your store in simplest way possible!
                 </Text>
               </Stack>
-              <Box marginTop="2">
-                <Button path="add-new-product">Add New Product</Button>
-              </Box>
+              {canAddMoreProducts ? (
+                <Box marginTop="2">
+                  <Button path="add-new-product">Add New Product</Button>
+                </Box>
+              ) : null}
             </Stack>
           )}
         </Stack>
       </Stack>
-      <Box position="fixed" style={{ bottom: 32, right: 24 }}>
-        <Button path="add-new-product">
-          <PlusIcon />
-          Add More
-        </Button>
-      </Box>
+      {canAddMoreProducts && products.length > 0 ? (
+        <Box position="fixed" style={{ bottom: 32, right: 24 }}>
+          <Button path="add-new-product">
+            <PlusIcon />
+            Add More
+          </Button>
+        </Box>
+      ) : null}
     </Page>
   );
 }

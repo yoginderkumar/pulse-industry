@@ -32,7 +32,7 @@ export default function Page({
           ) : (
             backTo
           )}
-          <Box flex="1">
+          <Box flex="1" className="line-clamp-1">
             <Text as="h1" fontSize="md">
               {title}
             </Text>

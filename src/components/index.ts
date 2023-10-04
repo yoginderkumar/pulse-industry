@@ -6,3 +6,4 @@ export * from "./Box";
 export * from "./Text";
 export * from "./Avatar";
 export * from "./DataFallback";
+export * from "./Modal";

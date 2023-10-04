@@ -1,4 +1,5 @@
-import { useParams } from "react-router-dom";
+import { EffectCallback, useEffect, useState } from "react";
+import { Navigate, useParams } from "react-router-dom";
 import {
   Button,
   CloseIcon,
@@ -6,33 +7,37 @@ import {
   Inline,
   InputAreaField,
   InputField,
-  PlusIcon,
+  PencilIcon,
   Stack,
   Text,
 } from "../components";
 import { SuspenseWithPerf } from "reactfire";
 import Page from "./Page";
-import { useAddProduct, useStore } from "../data";
+import {
+  STORE_PERMISSIONS,
+  useEnsuredProduct,
+  useStore,
+  useUpdateProduct,
+} from "../data";
 import { z } from "zod";
 import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import toast from "react-hot-toast";
-import { useState } from "react";
 
-export default function AddNewProductPage() {
-  const { storeId } = useParams();
-  if (!storeId) return null;
+export default function ProductPage() {
+  const { storeId, productId } = useParams();
+  if (!storeId || !productId) return null;
   return (
     <SuspenseWithPerf
       fallback={<DataLoadingFallback label="Loading store details..." />}
       traceId="loading_store_details"
     >
-      <AddNewProduct key={storeId} storeId={storeId} />
+      <Product key={storeId} storeId={storeId} productId={productId} />
     </SuspenseWithPerf>
   );
 }
 
-type AddProductForm = {
+type UpdateProductForm = {
   name: string;
   description: string;
   tags?: string[];
@@ -40,7 +45,7 @@ type AddProductForm = {
   inventory: number;
 };
 
-const addProductSchema = z
+const updateProductSchema = z
   .object({
     name: z
       .string({
@@ -79,34 +84,52 @@ const addProductSchema = z
     }
   });
 
-function AddNewProduct({ storeId }: { storeId: string }) {
-  const { store } = useStore(storeId);
+function Product({
+  storeId,
+  productId,
+}: {
+  storeId: string;
+  productId: string;
+}) {
+  const {
+    store,
+    isDeleted: isStoreDeleted,
+    checkIfAuthenticatedTeamMemberCan,
+  } = useStore(storeId);
+  const { product, isDeleted } = useEnsuredProduct(productId);
   const [currentTag, setCurrentTag] = useState<string>("");
   const [isAddingProduct, setIsAddingProduct] = useState<boolean>(false);
-  const addProductForm = useForm<AddProductForm>({
-    resolver: zodResolver(addProductSchema),
+  const updatedProductForm = useForm<UpdateProductForm>({
+    resolver: zodResolver(updateProductSchema),
   });
-  const addProduct = useAddProduct(storeId);
+  const updateProduct = useUpdateProduct(productId);
 
-  const { control, handleSubmit, getValues, setValue } = addProductForm;
+  const { control, handleSubmit, getValues, setValue } = updatedProductForm;
+
+  const [isEdit, setIsEdit] = useState<boolean>(false);
+
+  useMount(() => {
+    if (product) {
+      setValue("name", product.name);
+      setValue("description", product.description);
+      setValue("price", product.price);
+      setValue("tags", product.tags);
+      setValue("inventory", product.inventory.left || 0);
+    }
+  });
 
   async function addProductClick() {
     setIsAddingProduct(true);
     try {
       const data = getValues();
-      const productId = await addProduct({
+      const productId = await updateProduct({
         ...data,
         tags: data.tags,
         availableStock: data.inventory,
       });
       if (productId) {
         setIsAddingProduct(false);
-        setValue("name", "");
-        setValue("description", "");
-        setValue("inventory", 0);
-        setValue("price", 0);
-        setValue("tags", []);
-        toast.success("Product added successfully!");
+        toast.success("Product updated successfully!");
       }
     } catch (e) {
       const error = e as Error;
@@ -115,13 +138,44 @@ function AddNewProduct({ storeId }: { storeId: string }) {
     }
   }
 
+  const canUpdateProduct = checkIfAuthenticatedTeamMemberCan(
+    STORE_PERMISSIONS.UPDATE_PRODUCT
+  );
+  const canUpdateInventory = checkIfAuthenticatedTeamMemberCan(
+    STORE_PERMISSIONS.UPDATE_INVENTORY
+  );
+
+  if (isDeleted) {
+    <Navigate to={`/dashboard/stores/${storeId}`} />;
+  }
+  if (isStoreDeleted) {
+    <Navigate to="/dashboard/home" />;
+  }
+
   return (
     <Page
       backTo={`/dashboard/stores/${storeId}`}
-      title={`Add New Product - ${store.name} `}
+      title={`${product.name} - ${store.name} `}
     >
       <Stack paddingX="6" paddingY="4" gap="4">
         <Stack gap="3">
+          {isEdit ? (
+            <Inline paddingBottom="2">
+              <Text fontSize="xs" color="textSuccess">
+                {canUpdateProduct
+                  ? "You can make changes to the product"
+                  : canUpdateInventory
+                  ? "You can only update the inventory for the product"
+                  : ""}
+              </Text>
+            </Inline>
+          ) : (
+            <Stack alignItems="end">
+              <Button onClick={() => setIsEdit(true)}>
+                <PencilIcon /> Edit Product
+              </Button>
+            </Stack>
+          )}
           <Stack gap="2">
             <Controller
               control={control}
@@ -134,6 +188,7 @@ function AddNewProduct({ storeId }: { storeId: string }) {
                 return (
                   <InputField
                     name="name"
+                    disabled={!isEdit || !canUpdateProduct}
                     placeholder="Product Name"
                     onChange={onChange}
                     value={value}
@@ -154,6 +209,7 @@ function AddNewProduct({ storeId }: { storeId: string }) {
                 return (
                   <InputAreaField
                     name="description"
+                    disabled={!isEdit || !canUpdateProduct}
                     placeholder="Product Description"
                     onChange={onChange}
                     value={value}
@@ -175,6 +231,7 @@ function AddNewProduct({ storeId }: { storeId: string }) {
                   <InputField
                     type="number"
                     name="price"
+                    disabled={!isEdit || !canUpdateProduct}
                     label="Product Price"
                     placeholder="Price in INR"
                     onChange={(e) => onChange(Number(e.target.value))}
@@ -201,6 +258,7 @@ function AddNewProduct({ storeId }: { storeId: string }) {
                       placeholder="Product Tags"
                       onChange={(e) => setCurrentTag(e.currentTarget.value)}
                       value={currentTag}
+                      disabled={!isEdit || !canUpdateProduct}
                       onKeyDown={(e) => {
                         if (e.key === "Enter") {
                           setCurrentTag("");
@@ -257,6 +315,7 @@ function AddNewProduct({ storeId }: { storeId: string }) {
                 return (
                   <InputField
                     name="inventory"
+                    disabled={!isEdit || !canUpdateInventory}
                     placeholder="Available Stock/Inventory"
                     onChange={(e) => onChange(Number(e.target.value))}
                     value={value}
@@ -267,16 +326,28 @@ function AddNewProduct({ storeId }: { storeId: string }) {
             />
           </Stack>
 
-          <Button
-            fullWidth
-            onClick={handleSubmit(addProductClick)}
-            loading={isAddingProduct}
-          >
-            {" "}
-            <PlusIcon /> Add Product
-          </Button>
+          {isEdit ? (
+            <Button
+              fullWidth
+              onClick={handleSubmit(addProductClick)}
+              loading={isAddingProduct}
+            >
+              Save Changes
+            </Button>
+          ) : null}
         </Stack>
       </Stack>
     </Page>
   );
+}
+
+function useEffectOnce(effect: EffectCallback) {
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  useEffect(effect, []);
+}
+
+function useMount(fn: () => void) {
+  useEffectOnce(() => {
+    fn();
+  });
 }

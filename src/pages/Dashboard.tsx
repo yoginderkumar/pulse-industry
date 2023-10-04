@@ -28,7 +28,7 @@ export default function DashboardPage() {
               borderWidth="1"
               borderColor="borderSeparator"
               rounded="md"
-              gap="4"
+              gap="2"
               paddingX="3"
               paddingY="4"
               as="li"

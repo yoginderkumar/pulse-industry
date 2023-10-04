@@ -17,12 +17,13 @@ import {
   RedirectToDashboardHome,
 } from "./redirects";
 import ProfilePage from "./pages/ProfilePage";
-import { DataLoadingFallback } from "./components";
+import { DataLoadingFallback, OverlayProvider } from "./components";
 import AddNewStorePage from "./pages/AddNewStore";
 import StorePage from "./pages/Store";
 import AddNewProductPage from "./pages/AddNewProduct";
 import StoreSettingsPage from "./pages/StoreSettings";
 import AddNewMemberPage from "./pages/AddTeamMember";
+import ProductPage from "./pages/Product";
 
 function App() {
   const firebaseApp = useFirebaseApp();
@@ -76,6 +77,7 @@ function App() {
               children: [
                 { path: "", element: <StorePage /> },
                 { path: "add-new-product", element: <AddNewProductPage /> },
+                { path: "products/:productId", element: <ProductPage /> },
                 {
                   path: "settings",
                   children: [
@@ -99,7 +101,9 @@ function App() {
           traceId={"auth-wait"}
           fallback={<DataLoadingFallback label="Authenticating..." />}
         >
-          <RouterProvider router={router} />
+          <OverlayProvider>
+            <RouterProvider router={router} />
+          </OverlayProvider>
         </SuspenseWithPerf>
       </FirestoreProvider>
     </AuthProvider>

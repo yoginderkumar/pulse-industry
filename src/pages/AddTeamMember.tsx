@@ -13,6 +13,7 @@ import {
 import Page from "./Page";
 import {
   ROLES_AND_PERMISSIONS,
+  STORE_PERMISSIONS,
   useAddTeamMember,
   useCheckUserExistence,
   useStore,
@@ -51,6 +52,7 @@ type AddUserForm = {
 };
 
 function AddTeamMember({ storeId }: { storeId: string }) {
+  const { checkIfAuthenticatedTeamMemberCan } = useStore(storeId);
   const [selectedRole, setSelectedRole] = useState<"manager" | "admin">(
     "manager"
   );
@@ -66,7 +68,12 @@ function AddTeamMember({ storeId }: { storeId: string }) {
     resolver: zodResolver(addTeamSchema),
   });
 
-  const { control, handleSubmit, getValues, setError } = addTeamMemberForm;
+  const { control, handleSubmit, getValues, setError, setValue } =
+    addTeamMemberForm;
+
+  const canAddManagersOnly = checkIfAuthenticatedTeamMemberCan(
+    STORE_PERMISSIONS.ADD_MANAGER_ONLY
+  );
 
   async function addTeamMember() {
     setIsAddingMember(true);
@@ -101,6 +108,7 @@ function AddTeamMember({ storeId }: { storeId: string }) {
         selectedRole
       );
       toast.success(`Added ${user.displayName} to your store!`);
+      setValue("email", "");
       setIsAddingMember(false);
     } catch (e) {
       const error = e as Error;
@@ -120,7 +128,7 @@ function AddTeamMember({ storeId }: { storeId: string }) {
           name="email"
           render={(props) => {
             const {
-              field: { onChange },
+              field: { onChange, value },
               fieldState: { error },
             } = props;
             return (
@@ -128,6 +136,7 @@ function AddTeamMember({ storeId }: { storeId: string }) {
                 id="email"
                 name="email"
                 placeholder="Email"
+                value={value}
                 onChange={onChange}
                 error={error?.message}
               />
@@ -143,14 +152,17 @@ function AddTeamMember({ storeId }: { storeId: string }) {
             checked={selectedRole === "manager"}
             onChange={() => setSelectedRole("manager")}
           />
-          <InputField
-            name="admin"
-            type="radio"
-            label="Admin"
-            checked={selectedRole === "admin"}
-            value="admin"
-            onChange={() => setSelectedRole("admin")}
-          />
+          {canAddManagersOnly ? null : (
+            <InputField
+              name="admin"
+              type="radio"
+              label="Admin"
+              readonly={canAddManagersOnly}
+              checked={selectedRole === "admin"}
+              value="admin"
+              onChange={() => setSelectedRole("admin")}
+            />
+          )}
         </Inline>
         <Button
           fullWidth

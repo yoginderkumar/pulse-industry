@@ -3,16 +3,20 @@ import {
   Timestamp,
   collection,
   doc,
-  limit,
   orderBy,
   query,
   serverTimestamp,
   setDoc,
-  startAfter,
+  updateDoc,
   where,
 } from "firebase/firestore";
-import { useCallback, useEffect, useState } from "react";
-import { useFirestore, useFirestoreCollectionData, useUser } from "reactfire";
+import { useCallback, useEffect, useRef, useState } from "react";
+import {
+  useFirestore,
+  useFirestoreCollectionData,
+  useFirestoreDocData,
+  useUser,
+} from "reactfire";
 
 type TProduct = {
   id: string;
@@ -36,24 +40,18 @@ function useProductsCollection() {
   return collection(store, "Products") as CollectionReference<TProduct>;
 }
 
-// function useProductDocument(storeId: string) {
-//   const storeCollection = useProductsCollection();
-//   return doc(storeCollection, storeId);
-// }
-
-const pageSize = 4;
+function useProductDocument(productId: string) {
+  const productCollection = useProductsCollection();
+  return doc(productCollection, productId);
+}
 
 export function useProducts(storeId: string) {
-  const [currentPage, setCurrentPage] = useState<number>(1);
   const [products, setProducts] = useState<TProduct[]>([]);
   const productsCollection = useProductsCollection();
-  const startAfterDoc = currentPage > 1 ? products[currentPage - 2] : null;
   const productQuery = query(
     productsCollection,
     where("storeId", "==", storeId),
-    orderBy("updatedAt", "asc"),
-    startAfter(startAfterDoc),
-    limit(pageSize)
+    orderBy("updatedAt", "asc")
   );
   const { data } = useFirestoreCollectionData(productQuery, {
     idField: "id",
@@ -65,17 +63,12 @@ export function useProducts(storeId: string) {
     }
   }, [data]);
 
-  function fetchMore() {
-    setCurrentPage((prev) => prev + 1);
-  }
-
   return {
     products,
-    fetchMore,
   };
 }
 
-type AddStoreDataPayload = {
+type StoreDataPayload = {
   name: string;
   description: string;
   price: number;
@@ -86,7 +79,7 @@ export function useAddProduct(storeId: string) {
   const { data: user } = useUser();
   const productCollection = useProductsCollection();
   return useCallback(
-    async (data: AddStoreDataPayload) => {
+    async (data: StoreDataPayload) => {
       const productRef = doc(productCollection);
       await setDoc(productRef, {
         id: productRef.id,
@@ -108,4 +101,49 @@ export function useAddProduct(storeId: string) {
     },
     [productCollection, storeId, user?.uid]
   );
+}
+
+export function useUpdateProduct(productId: string) {
+  const { data: user } = useUser();
+  const productDocRef = useProductDocument(productId);
+  return useCallback(
+    async (data: StoreDataPayload) => {
+      await updateDoc(productDocRef, {
+        name: data.name,
+        description: data.description,
+        price: data.price,
+        tags: data.tags?.length ? data.tags : [],
+        inventory: {
+          total: data.availableStock,
+          sold: 0,
+          left: data.availableStock,
+        },
+        updatedAt: serverTimestamp(),
+        addedBy: user?.uid || "missing",
+      });
+      return productDocRef.id;
+    },
+    [productDocRef, user?.uid]
+  );
+}
+
+export function useEnsuredProduct(productId: string) {
+  const storeDoc = useProductDocument(productId);
+  const { data: productData } = useFirestoreDocData(storeDoc, {
+    idField: "id",
+  });
+  // Create a ref of current data and pass it down.
+  // This allows us to handle the book deletion
+  const productRef = useRef(productData);
+  let isDeleted = false;
+  if (productData && productData.name) {
+    // always keep the data in sync
+    productRef.current = productData;
+  } else {
+    isDeleted = true;
+  }
+  if (!productRef.current) {
+    throw new Error("Store not found");
+  }
+  return { product: productRef.current, isDeleted };
 }
