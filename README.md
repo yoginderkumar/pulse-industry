@@ -1,27 +1,49 @@
-# React + TypeScript + Vite
+# Pulse Industry
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+This repository contains source code for Pulse Inventory management web application.
 
-Currently, two official plugins are available:
+## Overview
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+Pulse Industry Web application allows you to manage your shop/products/inventory on your web browser.
 
-## Expanding the ESLint configuration
+## Important Note
 
-If you are developing a production application, we recommend updating the configuration to enable type aware lint rules:
+This web app was specifically made for mobile screens. Might not look good in your desktop browsers.
 
-- Configure the top-level `parserOptions` property like this:
+## 1. How to setup project?
 
-```js
-   parserOptions: {
-    ecmaVersion: 'latest',
-    sourceType: 'module',
-    project: ['./tsconfig.json', './tsconfig.node.json'],
-    tsconfigRootDir: __dirname,
-   },
-```
+Make sure you have following requirements installed on your machine.
 
-- Replace `plugin:@typescript-eslint/recommended` to `plugin:@typescript-eslint/recommended-type-checked` or `plugin:@typescript-eslint/strict-type-checked`
-- Optionally add `plugin:@typescript-eslint/stylistic-type-checked`
-- Install [eslint-plugin-react](https://github.com/jsx-eslint/eslint-plugin-react) and add `plugin:react/recommended` & `plugin:react/jsx-runtime` to the `extends` list
+- `node` `>=16`
+- `npm` `>=8`
+
+1. Clone this repository on your local machine
+2. run `cd pulse-industry`
+3. run `npm install`
+4. run `npm run dev`
+5. Open browser with mentioned port in mobile screen size
+
+## Technology Stack
+
+This project was generated using [Vite](https://vitejs.dev/guide/) with **TypeScript**. We are using [reactfire](https://github.com/FirebaseExtended/reactfire) to connect with our [Firebase](https://firebase.google.com/) based backend.
+
+Following are the primary technologies used throughout different apps.
+
+- **[TypeScript](https://www.typescriptlang.org/) (^4) :** Programming Language
+- **[React](https://reactjs.org/docs/hello-world.html) (^18) :** UI Library (with [suspense](https://reactjs.org/docs/concurrent-mode-suspense.html))
+- **[React-Router-Dom](https://reactrouter.com/desktop-web/guides/quick-start) (^6-beta) :** Routing/Navigation
+- **[Tailwindcss](https://tailwindcss.com/) (^2) :** CSS
+- **[ReactFire](https://github.com/FirebaseExtended/reactfire) (^4.2.3) :** React-Firebase helper
+- **[React-Hook-Form](https://react-hook-form.com/) (^7.46.2) :** Input Forms
+- **[Zod](https://zod.dev/) (^3.22.2) :** Input Validation
+
+# Improvements
+
+1. Could have added test cases
+2. Would have been better with <ErrorBoundary>
+3. Few animations would have made it look just like an app.
+
+# Why React and not React-Native
+
+Setting up react-native app from scratch is more challenging than setting up a simple react app.
+It saved me a day.
