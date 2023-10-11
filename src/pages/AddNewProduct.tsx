@@ -199,9 +199,19 @@ function AddNewProduct({ storeId }: { storeId: string }) {
                       name="tag"
                       noMargin
                       placeholder="Product Tags"
-                      onChange={(e) => setCurrentTag(e.currentTarget.value)}
+                      onChange={(e) => {
+                        setCurrentTag(e.currentTarget.value);
+                        if (e.currentTarget.value.indexOf(" ") !== -1) {
+                          setCurrentTag("");
+                          onChange(
+                            value?.length
+                              ? [...value, currentTag]
+                              : [currentTag]
+                          );
+                        }
+                      }}
                       value={currentTag}
-                      onKeyDown={(e) => {
+                      onKeyUp={(e) => {
                         if (e.key === "Enter") {
                           setCurrentTag("");
                           onChange(
@@ -257,6 +267,7 @@ function AddNewProduct({ storeId }: { storeId: string }) {
                 return (
                   <InputField
                     name="inventory"
+                    type="number"
                     placeholder="Available Stock/Inventory"
                     onChange={(e) => onChange(Number(e.target.value))}
                     value={value}

@@ -255,11 +255,21 @@ function Product({
                     <InputField
                       name="tag"
                       noMargin
-                      placeholder="Product Tags"
-                      onChange={(e) => setCurrentTag(e.currentTarget.value)}
                       value={currentTag}
+                      placeholder="Product Tags"
                       disabled={!isEdit || !canUpdateProduct}
-                      onKeyDown={(e) => {
+                      onChange={(e) => {
+                        setCurrentTag(e.currentTarget.value);
+                        if (e.currentTarget.value.indexOf(" ") !== -1) {
+                          setCurrentTag("");
+                          onChange(
+                            value?.length
+                              ? [...value, currentTag]
+                              : [currentTag]
+                          );
+                        }
+                      }}
+                      onKeyUp={(e) => {
                         if (e.key === "Enter") {
                           setCurrentTag("");
                           onChange(

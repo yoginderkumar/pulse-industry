@@ -20,6 +20,7 @@ export function InputField({
   disabled,
   autoFocus,
   onChange,
+  onKeyUp,
   onKeyDown,
 }: {
   id?: string;
@@ -35,6 +36,7 @@ export function InputField({
   disabled?: boolean;
   autoFocus?: boolean;
   onChange?: React.ChangeEventHandler<HTMLInputElement>;
+  onKeyUp?: React.KeyboardEventHandler<HTMLInputElement>;
   onKeyDown?: React.KeyboardEventHandler<HTMLInputElement>;
 }) {
   const errorMessage = typeof error === "string" ? error : error?.message;
@@ -94,6 +96,7 @@ export function InputField({
         className={classNames("appearance-none outline-none focus:ring-0 peer")}
         onChange={onChange}
         onKeyDown={onKeyDown}
+        onKeyUp={onKeyUp}
       />
       {label || placeholder ? (
         <Box
